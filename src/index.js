@@ -1,5 +1,6 @@
 import React from 'react';
 import dva, { connect } from 'dva';
+import keymaster from "keymaster";
 
 // 执行dva函数，返回app实例
 const app = dva();
@@ -67,11 +68,20 @@ app.model({
         }
     },
     effects: {
-        *asyncAdd(action, {put, call}){ // redux-saga/effects {put, call}
+        *asyncAdd(action, { put, call }) { // redux-saga/effects {put, call}
             yield call(delay, 1000); // 把1000传给delay方法, 并进行调用, yield会等待promise方法完成
             yield put({
                 type: "add"
             });
+        }
+    },
+    subscriptions: {
+        keyboard({ dispatch }) { // keyboard这个名字, 可以随便起
+            // 监听键盘的输入, 如果是space,调用add
+            keymaster("space", () => {
+                console.log("2222")
+                dispatch({ type: "add" })
+            })
         }
     }
 });
@@ -110,7 +120,7 @@ const ConnectedCounter2 = connect(state => state.counter2)(Counter2);
 app.router(
     () => <div>
         <ConnectedCounter />
-        <hr/>
+        <hr />
         <ConnectedCounter2 />
     </div>
 );
