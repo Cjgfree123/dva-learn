@@ -12,6 +12,14 @@ const app = dva();
  * }
  */
 
+const delay = (millseconds) => {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            resolve();
+        }, millseconds);
+    })
+}
+
 app.model({
     namespace: "counter",
     state: {
@@ -57,6 +65,14 @@ app.model({
                 num: state.num - 1,
             }
         }
+    },
+    effects: {
+        *asyncAdd(action, {put, call}){ // redux-saga/effects {put, call}
+            yield call(delay, 1000); // 把1000传给delay方法, 并进行调用, yield会等待promise方法完成
+            yield put({
+                type: "add"
+            });
+        }
     }
 });
 
@@ -78,7 +94,8 @@ const Counter2 = (props) => {
     return (
         <div>
             <p>{props.num}</p>
-            <button onClick={() => props.dispatch({ type: "counter2/add" })}>+</button>
+            <button onClick={() => props.dispatch({ type: "counter2/add" })}>+[add]</button>
+            <button onClick={() => props.dispatch({ type: "counter2/asyncAdd" })}>+[asyncAdd]</button>
             <button onClick={() => props.dispatch({ type: "counter2/minus" })}>-</button>
         </div>
     )
