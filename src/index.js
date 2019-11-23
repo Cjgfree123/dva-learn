@@ -1,6 +1,7 @@
 import React from 'react';
 import dva, { connect } from 'dva';
 import keymaster from "keymaster";
+import { Router, Route } from "dva/router";
 
 // 执行dva函数，返回app实例
 const app = dva();
@@ -32,7 +33,6 @@ app.model({
          * dispatch({type:'minus'})
          */
         add(state) {
-            console.log("add", state);
             return {
                 num: state.num + 1,
             };
@@ -56,7 +56,6 @@ app.model({
          * dispatch({type:'minus'})
          */
         add(state) {
-            console.log("add2", state);
             return {
                 num: state.num + 1,
             };
@@ -79,15 +78,19 @@ app.model({
         keyboard({ dispatch }) { // keyboard这个名字, 可以随便起
             // 监听键盘的输入, 如果是space,调用add
             keymaster("space", () => {
-                console.log("2222")
                 dispatch({ type: "add" })
             })
+        },
+        changeTitle({ history }) {
+            // 随着hash变化，随时更新网页title
+            history.listen(({ pathname }) => {
+                document.title = pathname;
+            });
         }
     }
 });
 
 const Counter = (props) => {
-    console.log("props", props)
     // 注意: 在派发action时，必须加上命名空间, 防止多组件之间派发的action之前名字重复。
     return (
         <div>
@@ -99,7 +102,6 @@ const Counter = (props) => {
 }
 
 const Counter2 = (props) => {
-    console.log("props", props)
     // 注意: 在派发action时，必须加上命名空间, 防止多组件之间派发的action之前名字重复。
     return (
         <div>
@@ -118,11 +120,15 @@ const ConnectedCounter2 = connect(state => state.counter2)(Counter2);
 
 // 1.将app.router()返回值,渲染到root元素中
 app.router(
-    () => <div>
-        <ConnectedCounter />
-        <hr />
-        <ConnectedCounter2 />
-    </div>
+    // props: {app,history}
+    ({ app, history }) => {
+        return (<Router history={history}>
+            <div>
+                <Route path="/counter1" component={ConnectedCounter} />
+                <Route path="/counter2" component={ConnectedCounter2} />
+            </div>
+        </Router>);
+    }
 );
 
 // 2.启动项目
