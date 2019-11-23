@@ -1,2 +1,11 @@
-# dva-learn
-学习dva,构建顺序，写个demo
+# dva demo
+
+```
+// 运行
+yarn start
+```
+
+```
+// 使用cra搭建, 项目基础结构
+npx create-react-app 20.dva
+```
